@@ -1,0 +1,190 @@
+template <class elemType>
+class binarySearchTree : public binaryTreeType<elemType>
+{
+public:
+    void insert(const elemType &insertItem);
+    bool search(const elemType &searchItem);
+    void deleteNode(const elemType &deleteItem);
+    binarySearchTree(int (*comp)(const elemType &, const elemType &));
+
+protected:
+    int (*compare)(const elemType &, const elemType &);
+
+private:
+    void deleteFromTree(nodeType<elemType> *&currentNode);
+    bool search(const elemType &searchItem, nodeType<elemType> *currentNode);
+    void insert(nodeType<elemType> *&insertItem, nodeType<elemType> *&currentNode);
+};
+
+template <class elemType>
+binarySearchTree<elemType>::binarySearchTree(int (*comp)(const elemType &item1, const elemType &item2))
+{
+    this->compare = comp;
+}
+
+template <class elemType>
+void binarySearchTree<elemType>::insert(const elemType &insertItem)
+{
+    nodeType<elemType> *newNode;
+    newNode = new nodeType<elemType>;
+    newNode->data = new elemType(insertItem);
+    newNode->left = nullptr;
+    newNode->right = nullptr;
+    insert(newNode, this->getRoot());
+}
+
+template <class elemType>
+void binarySearchTree<elemType>::insert(nodeType<elemType> *&insertItem, nodeType<elemType> *&currentNode)
+{
+    if (currentNode == nullptr)
+    {
+        currentNode = insertItem;
+    }
+    else
+    {
+        int cmp = compare(*(*insertItem), *(*currentNode));
+        if (cmp == 0)
+        {
+            throw std::invalid_argument("The item to be inserted is already in the tree -- duplicates are not allowed");
+        }
+        else if (cmp == 1) // new node is larger than current --> head right
+        {
+            insert(insertItem, currentNode->right);
+        }
+        else if (cmp == -1) // new node is smaller than current --> head left
+        {
+            insert(insertItem, currentNode->left);
+        }
+    }
+}
+
+template <class elemType>
+bool binarySearchTree<elemType>::search(const elemType &searchItem)
+{
+    return search(searchItem, this->getRoot());
+}
+
+template <class elemType>
+bool binarySearchTree<elemType>::search(const elemType &searchItem, nodeType<elemType> *currentNode)
+{
+    if (currentNode == nullptr)
+    {
+        return false;
+    }
+    int cmp = compare(searchItem, *(*currentNode));
+    if (cmp == 0)
+    {
+        return true;
+    }
+    else if (cmp == 1)
+    {
+        return search(searchItem, currentNode->right);
+    }
+    else if (cmp == -1)
+    {
+        return search(searchItem, currentNode->left);
+    }
+    return false;
+}
+
+template <class elemType>
+void binarySearchTree<elemType>::deleteNode(const elemType &deleteItem)
+{
+    nodeType<elemType> *current;
+    nodeType<elemType> *trailCurrent;
+    bool found = false;
+    if (this->isEmpty())
+    {
+        throw std::invalid_argument("Cannot delete from an empty tree");
+    }
+    current = this->getRoot();
+    trailCurrent = current;
+    while (current != nullptr && !found)
+    {
+        int cmp = compare(deleteItem, *(*current));
+        if (cmp == 0)
+        {
+            found = true;
+        }
+        else
+        {
+            trailCurrent = current;
+            if (cmp == 1)
+            {
+                current = current->right;
+            }
+            else
+            {
+                current = current->left;
+            }
+        }
+    }
+    if (!found)
+    {
+        throw std::invalid_argument("The item to be deleted is not in the tree");
+    }
+    else
+    {
+        if (current == this->getRoot())
+            deleteFromTree(this->getRoot());
+        else if (compare(deleteItem, *(*trailCurrent)) == -1)
+        {
+            deleteFromTree(trailCurrent->left);
+        }
+        else
+        {
+            deleteFromTree(trailCurrent->right);
+        }
+    }
+}
+
+template <class elemType>
+void binarySearchTree<elemType>::deleteFromTree(nodeType<elemType> *&currentNode)
+{
+    nodeType<elemType> *current;
+    nodeType<elemType> *trailCurrent;
+    nodeType<elemType> *temp;
+    if (currentNode == nullptr)
+        throw std::invalid_argument("The item to be deleted is not in the tree.");
+    else if (currentNode->left == nullptr && currentNode->right == nullptr)
+    {
+        temp = currentNode;
+        currentNode = nullptr;
+        delete temp;
+    }
+    else if (currentNode->left == nullptr)
+    {
+        temp = currentNode;
+        currentNode = temp->right;
+        delete temp;
+    }
+    else if (currentNode->right == nullptr)
+    {
+        temp = currentNode;
+        currentNode = temp->left;
+        delete temp;
+    }
+    else
+    {
+        current = currentNode->left;
+        trailCurrent = nullptr;
+        while (current->right != nullptr)
+        {
+            trailCurrent = current;
+            current = current->right;
+        }
+        elemType *tempData;
+        tempData = currentNode->data;
+        currentNode->data = current->data;
+        current->data = tempData;
+        if (trailCurrent == nullptr)
+        {
+            currentNode->left = current->left;
+        }
+        else
+        {
+            trailCurrent->right = current->left;
+        }
+        delete current;
+    }
+}

@@ -1,0 +1,32 @@
+bool graphType::connected(int start, int finish, linkedStack<int> &nodeStack)
+{
+    
+
+    for (int i = start; i < gSize; i++)
+    {
+        if (!visited[i])
+        {
+            visited[i] = true;
+            if (i == finish)
+            {
+                //while iterator equal to finish we returned true
+                nodeStack.push(i);
+                return true;
+            }
+            else
+            {
+                bool found = connected(i, finish, nodeStack);
+
+                if (found)
+                {
+                    nodeStack.push(i);
+                    return found;
+                }
+            }
+        }
+        
+    }
+    delete[] visited;
+    //we return false if the path is stopped before reaching finish
+    return false;
+}

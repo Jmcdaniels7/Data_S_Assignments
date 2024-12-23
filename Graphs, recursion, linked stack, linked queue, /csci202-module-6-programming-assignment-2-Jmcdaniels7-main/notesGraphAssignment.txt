@@ -1,0 +1,6 @@
+functions in graph.cpp for break through on recursion 
+and being able to print each node visited in the graph
+per the adjanecny list:
+
+connected and findPath are most important functions for understanding recursion
+and the graph traversal.
