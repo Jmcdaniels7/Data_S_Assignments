@@ -1,0 +1,10 @@
+Which hash table seems to find things faster? Do you notice a difference?
+It looks like the second hash table would find things faster due to being organized 
+in an array of linked lists.
+
+Which hash table was easier to implement?
+The standard array hash Table that does quadratic probing for collisions was easier to implement
+mainly because I can understand it better.
+
+Do you think changing the probing technique could help the first hash table?
+Yes, we could try double hashing and it could help the first table.
